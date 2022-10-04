@@ -1,8 +1,8 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose"
 
 function configDB() {
   try {
-    mongoose.connect(process.env.DB_PORT)
+    mongoose.connect(process.env.DB_PORT_PRODUCTION)
 
     console.log(`Successfully connected to the ${process.env.DB_PORT}`)
   } catch (error) {

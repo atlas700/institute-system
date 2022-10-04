@@ -61,6 +61,17 @@ const getUsers = asyncHandler(async (req, res) => {
   }
 })
 
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId)
+
+  if (user) {
+    res.json(user)
+  } else {
+    res.status(404)
+    throw new Error("no user found by the given id, please try again")
+  }
+})
+
 const getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select("-password")
 
@@ -157,6 +168,7 @@ export {
   signup,
   login,
   getUsers,
+  getUserById,
   getProfile,
   deleteAllUsers,
   deleteUser,
