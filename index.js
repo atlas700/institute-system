@@ -50,7 +50,8 @@ app.use((err, req, res, next) => {
   res.status(errorCode)
   res.json({
     message: err.message,
-    stack: process.env.NODE_ENV === "production" ? err.stack : undefined,
+    stack:
+      process.env.NODE_ENVIRONMENT === "production" ? err.stack : undefined,
   })
 })
 

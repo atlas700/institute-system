@@ -8,7 +8,7 @@ const auth = asyncHandler(async (req, res, next) => {
 
   if (token) {
     token = token.split(" ")[1]
-    const decoded = jwt.verify(token, "mySecret")
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
 
     const user = await User.findById(decoded.id)
 
