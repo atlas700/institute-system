@@ -5,7 +5,9 @@ import User from "../models/usersModel.js"
 import genAuthToken from "../utils/genAuthToken.js"
 
 const signup = asyncHandler(async (req, res) => {
-  const newUser = new User(req.body)
+  const { name, email, password } = req.body
+
+  const newUser = await User.create({ name, email, password })
 
   if (newUser) {
     res.status(201)
@@ -15,6 +17,7 @@ const signup = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
       token: genAuthToken(user._id),
     })
   } else {

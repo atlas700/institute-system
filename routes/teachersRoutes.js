@@ -23,7 +23,7 @@ router.get("/reports", auth, admin, getReports)
 router
   .route("/:teacherId")
   .get(auth, getTeacher)
-  .put(auth, updateTeacher)
-  .delete(auth, deleteTeacher)
+  .put(auth, auth, admin, updateTeacher)
+  .delete(auth, admin, deleteTeacher)
 
 export default router

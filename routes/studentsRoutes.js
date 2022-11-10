@@ -7,8 +7,11 @@ import {
   updateStudent,
   deleteStudents,
   deleteStudent,
-  getReports,
-  getSpecificUserStudents,
+  getOneMonthReports,
+  getOneYearReports,
+  getOneWeekReports,
+  getOneDayReports,
+  getAllStudents,
 } from "../controllers/studentsControllers.js"
 import admin from "../middlewares/admin.js"
 import auth from "../middlewares/auth.js"
@@ -20,11 +23,14 @@ router
   .post(auth, addStudent)
   .get(auth, getStudents)
   .delete(auth, admin, deleteStudents)
-router.get("/reports", auth, admin, getReports)
+router.get("/allStudents", getAllStudents)
+router.get("/reports/yearly", auth, admin, getOneYearReports)
+router.get("/reports/monthly", auth, admin, getOneMonthReports)
+router.get("/reports/weekly", auth, admin, getOneWeekReports)
+router.get("/reports/daily", auth, admin, getOneDayReports)
 router
   .route("/:studentId")
   .get(auth, getStudent)
-  .put(auth, updateStudent)
-  .delete(auth, deleteStudent)
-router.get("/user/userId", auth, getSpecificUserStudents)
+  .put(auth, admin, updateStudent)
+  .delete(auth, admin, deleteStudent)
 export default router

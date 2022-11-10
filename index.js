@@ -1,15 +1,14 @@
 import path from "path"
 import express from "express"
+import mongoose from "mongoose"
 import "dotenv/config"
 
-import configDB from "./db/database.js"
+import usersRoutes from "./routes/usersRoutes.js"
 import studentsRoutes from "./routes/studentsRoutes.js"
 import teachersRoutes from "./routes/teachersRoutes.js"
-import usersRoutes from "./routes/usersRoutes.js"
+import seriesRoutes from "./routes/seriesRoutes.js"
 
 const app = express()
-
-configDB()
 
 const __dirname = path.resolve()
 
@@ -32,17 +31,18 @@ app.use((req, res, next) => {
 app.use("/api/students", studentsRoutes)
 app.use("/api/teachers", teachersRoutes)
 app.use("/api/users", usersRoutes)
+app.use("/api/series", seriesRoutes)
 
 app.use((req, res, next) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"))
 })
 
 // a route for unregistered routes
-// app.use((req, res, next) => {
-//   const error = new Error(`Route Not Found - ${req.originalUrl}`)
-//   res.status(404)
-//   next(error)
-// })
+app.use((req, res, next) => {
+  const error = new Error(`Route Not Found - ${req.originalUrl}`)
+  res.status(404)
+  next(error)
+})
 
 // a route for the errors
 app.use((err, req, res, next) => {
@@ -55,8 +55,24 @@ app.use((err, req, res, next) => {
   })
 })
 
-app.listen(process.env.NODE_PORT, () =>
-  console.log(
-    `Server is running in ${process.env.NODE_ENVIRONMENT} mode on port ${process.env.NODE_PORT}`
-  )
-)
+mongoose
+  .connect(process.env.DB_PORT_LOCAL)
+  .then(() => {
+    app.listen(
+      process.env.NODE_PORT,
+      console.log(
+        `Server is running in ${process.env.NODE_ENVIRONMENT} mode on port ${process.env.NODE_PORT}`
+      )
+    )
+    console.log("Successfully connected to the database")
+  })
+  .catch(err => console.log(err))
+
+// import dayjs from "dayjs"
+// import utc from "dayjs/plugin/utc.js"
+// import timezone from "dayjs/plugin/timezone.js"
+
+// dayjs.extend(utc)
+// dayjs.extend(timezone)
+
+// console.log(dayjs().tz("Asia/Kabul").daysInMonth())

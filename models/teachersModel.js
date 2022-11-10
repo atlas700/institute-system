@@ -7,21 +7,48 @@ const teachersSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, trim: true },
+    serieses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Series",
+      },
+    ],
+    salaries: [
+      {
+        series: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+        },
+        level: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+        },
+        seriesName: { type: String, required: true },
+        levelName: { type: String, required: true },
+        levelSalary: { type: Number, required: true, default: 0 },
+        isPaid: { type: Boolean, required: true, default: false },
+        paidAt: { type: Date },
+      },
+    ],
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     phoneNumber: {
-      type: Number,
+      type: String,
       required: true,
       trim: true,
       maxLength: 10,
       minLength: 10,
     },
-    salary: { type: Number, required: true, trim: true },
-    teachingField: { type: String, required: true },
-    attendanceTime: { type: String, required: true },
-    created: { type: Date, required: true, default: Date.now() },
-
-    rolledAt: { type: Date, required: true },
+    created: { type: Date, required: true },
   },
 
   { timestamps: true }

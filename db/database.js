@@ -1,11 +1,13 @@
 import mongoose from "mongoose"
 
 function configDB() {
-  try {
-    mongoose.connect(process.env.DB_PORT_PRODUCTION)
-  } catch (error) {
-    console.log(error)
-  }
+  mongoose.connect("mongodb://127.0.0.1/centerDB", error => {
+    if (error) {
+      console.log(error)
+      return process.exit(1)
+    }
+    console.log("Database connected successfully")
+  })
 }
 
 export default configDB

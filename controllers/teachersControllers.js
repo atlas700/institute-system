@@ -1,26 +1,26 @@
 import asyncHandler from "express-async-handler"
 
 import Teacher from "../models/teachersModel.js"
+import Series from "../models/seriesModel.js"
 
 const addTeacher = asyncHandler(async (req, res) => {
-  const { name, email, phoneNumber, attendanceTime, teachingField, salary } =
-    req.body
+  const { name, email, phoneNumber, time } = req.body
 
   const newTeacher = new Teacher({
     user: req.user._id,
     name,
     email,
-    phoneNumber: Number(phoneNumber),
-    attendanceTime,
-    teachingField,
-    salary,
-    rolledAt: Date.now(),
+    phoneNumber,
+    created: Date.now(),
   })
 
   if (newTeacher) {
-    await newTeacher.save()
-    res.json(newTeacher)
+    let teacher = await newTeacher.save()
+
+    await teacher.save()
+
     res.status(201)
+    res.json(teacher)
   } else {
     res.status(422)
     throw new Error("please add the credentials to add the teacher")
@@ -28,7 +28,7 @@ const addTeacher = asyncHandler(async (req, res) => {
 })
 
 const getTeachers = asyncHandler(async (req, res) => {
-  const teachers = await Teacher.find()
+  const teachers = await Teacher.find().populate("serieses")
 
   if (teachers && teachers.length > 0) {
     res.json(teachers)
@@ -39,7 +39,9 @@ const getTeachers = asyncHandler(async (req, res) => {
 })
 
 const getTeacher = asyncHandler(async (req, res) => {
-  const teacher = await Teacher.findById(req.params.teacherId)
+  const teacher = await Teacher.findOne({ _id: req.params.teacherId }).populate(
+    "serieses"
+  )
 
   if (teacher) {
     res.json(teacher)
@@ -50,74 +52,32 @@ const getTeacher = asyncHandler(async (req, res) => {
 })
 
 const updateTeacher = asyncHandler(async (req, res) => {
-  if (req.user.isAdmin) {
-    const teacher = await Teacher.findById(req.params.teacherId)
+  const teacher = await Teacher.findById(req.params.teacherId)
 
-    if (teacher) {
-      teacher.name = req.body.name || teacher.name
-      teacher.email = req.body.email || teacher.email
-      teacher.phoneNumber = req.body.phoneNumber || teacher.phoneNumber
-      teacher.salary = req.body.salary || teacher.salary
-      teacher.attendanceTime = req.body.attendanceTime || teacher.attendanceTime
-      teacher.teachingField = req.body.teachingField || teacher.teachingField
+  if (teacher) {
+    teacher.name = req.body.name || teacher.name
+    teacher.email = req.body.email || teacher.email
+    teacher.phoneNumber = req.body.phoneNumber || teacher.phoneNumber
 
-      const updatedTeacher = await teacher.save()
+    const updatedTeacher = await teacher.save()
 
-      res.json(updatedTeacher)
-    } else {
-      res.status(404)
-      throw new Error("no teacher found by the given id")
-    }
+    res.json(updatedTeacher)
   } else {
-    const teacher = await Teacher.findOne({
-      _id: req.params.teacherId,
-      user: req.user._id,
-    })
-
-    if (teacher) {
-      teacher.name = req.body.name || teacher.name
-      teacher.email = req.body.email || teacher.email
-      teacher.phoneNumber = req.body.phoneNumber || teacher.phoneNumber
-      teacher.salary = req.body.salary || teacher.salary
-      teacher.attendanceTime = req.body.attendanceTime || teacher.attendanceTime
-      teacher.teachingField = req.body.teachingField || teacher.teachingField
-
-      const updatedTeacher = await teacher.save()
-
-      res.json(updatedTeacher)
-    } else {
-      res.status(404)
-      throw new Error(
-        "You have no permit to update a teacher added by other user"
-      )
-    }
+    res.status(404)
+    throw new Error("no teacher found by the given id")
   }
 })
 
 const deleteTeacher = asyncHandler(async (req, res) => {
-  if (req.user.isAdmin) {
-    const teacher = await Teacher.findByIdAndDelete(req.params.teacherId)
+  const teacher = await Teacher.findOneAndDelete({
+    _id: req.params.teacherId,
+  })
 
-    if (teacher) {
-      res.json(teacher)
-    } else {
-      res.status(404)
-      throw new Error("no teacher found by the given id")
-    }
+  if (teacher) {
+    res.json(teacher)
   } else {
-    const teacher = await Teacher.findOneAndDelete({
-      _id: req.params.teacherId,
-      user: req.user._id,
-    })
-
-    if (teacher) {
-      res.json(teacher)
-    } else {
-      res.status(404)
-      throw new Error(
-        "You have no permit to delete a teacher added by other user"
-      )
-    }
+    res.status(404)
+    throw new Error("could not find teacher by the given id please try again")
   }
 })
 
@@ -128,7 +88,7 @@ const deleteTeachers = asyncHandler(async (req, res) => {
     res.json(teachers)
   } else {
     res.status(404)
-    throw new Error("no teachers found in the database")
+    throw new Error("could not found teachers in the database")
   }
 })
 
